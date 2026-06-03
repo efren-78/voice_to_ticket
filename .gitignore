@@ -5,6 +5,10 @@ Backend/.env
 Backend/venv/
 .env
 Backend/__pycache__/
+Backend/core/__pycache__/
+Backend/models/__pycache__/
+Backend/routers/__pycache__/
+Backend/services/__pycache__/
 Backend/*.pyc
 Backend/incidents.json  
 

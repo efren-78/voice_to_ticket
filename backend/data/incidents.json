@@ -148,5 +148,20 @@
     "severidad": "media",
     "estado": "Abierto",
     "resumen": "El sistema no procesa correctamente los audios, lo que afecta la calidad del servicio."
+  },
+  {
+    "id": "afce958d",
+    "timestamp": "2026-06-03T04:07:06",
+    "fuente": "teclado",
+    "texto_original": "Hola, no guarda correctamente mi configuracion",
+    "voz_duracion": null,
+    "voz_status": null,
+    "idioma_codigo": "es",
+    "idioma_nombre": "Español",
+    "texto_es": "Hola, no guarda correctamente mi configuracion",
+    "categoria": "Técnico",
+    "severidad": "media",
+    "estado": "Abierto",
+    "resumen": "El sistema no guarda correctamente la configuración del usuario, lo que puede afectar la experiencia de uso."
   }
 ]

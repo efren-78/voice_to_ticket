@@ -186,10 +186,10 @@ async def registrar_por_voz(audio: UploadFile = File(...)):
     El frontend envía el audio grabado desde el navegador (webm/mp4/wav).
     '''
     settings    = load_config()
-    idioma_iso  = settings.get("idioma_iso", "es")
+    idioma_voz  = settings.get("idioma_voz", "es-MX")
     audio_bytes = await audio.read()
 
-    resultado = await asyncio.to_thread(transcribir_audio, audio_bytes, idioma_iso, audio.filename)
+    resultado = await asyncio.to_thread(transcribir_audio, audio_bytes, idioma_voz, audio.filename)
 
     if resultado["status"] != "success" or not resultado["texto"]:
         raise HTTPException(
