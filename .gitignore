@@ -1,0 +1,23 @@
+# ==========================================
+# Exclusiones para el Backend
+# ==========================================
+Backend/.env
+Backend/venv/
+.env
+Backend/__pycache__/
+Backend/*.pyc
+Backend/incidents.json  
+
+# ==========================================
+# Exclusiones para el Frontend
+# ==========================================
+Frontend/node_modules/
+Frontend/dist/
+Frontend/.env
+Frontend/.env.local
+
+# ==========================================
+# Archivos globales del sistema o IDE
+# ==========================================
+.DS_Store
+.vscode/

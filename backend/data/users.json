@@ -1,0 +1,16 @@
+[
+  {
+    "id": "72ff4f71",
+    "nombre": "cegaliz081",
+    "email": "cegaliz081@gmail.com",
+    "password": "$pbkdf2-sha256$29000$/f8/B4DwvldqTclZC0GIsQ$RkJ/HqHan/bLgZnelIrBl1VBghctG4y9ZX8iU9fndJY",
+    "rol": "empleado"
+  },
+  {
+    "id": "72ff4f71",
+    "nombre": "efren78",
+    "email": "curiefren78@gmail.com",
+    "password": "$pbkdf2-sha256$29000$dg7BGGOMESIEgJBSag0hxA$EoRlw4icaltsrCmo9hmKXkSzM0I2u9jSDmYYWED0xII",
+    "rol": "empleado"
+  }
+]

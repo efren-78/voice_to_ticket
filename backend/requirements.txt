@@ -1,0 +1,15 @@
+fastapi
+uvicorn
+openai
+langdetect
+deep-translator
+python-dotenv
+pyaudio
+speechRecognition
+pydub
+fastapi
+uvicorn[standard]
+python-multipart
+pydantic
+passlib
+python-jose[cryptography]
