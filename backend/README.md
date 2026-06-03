@@ -1,91 +1,113 @@
-# Voice to Ticket - Backend
+﻿# Voice to Ticket - Backend
 
-Este es el servidor del sistema **Voice to Ticket**, construido sobre **FastAPI**. Se encarga de la autenticación de usuarios, el procesamiento lingüístico de las incidencias, la transcripción de archivos de audio y la estructuración del ticket mediante IA.
-
-## ¿Qué hace?
-
-- **Gestión de Sesiones (`/api/usuarios`):** Proporciona endpoints seguros para el registro e inicio de sesión de operadores del sistema.
-- **Procesamiento Lingüístico de Incidencias (`/api/incidentes`):**
-  - **Identificación:** Ejecuta algoritmos locales de detección de idioma.
-  - **Normalización:** Convierte el texto de origen a idioma Español de forma local y gratuita.
-  - **Extracción:** Envía el texto limpio a `gpt-4o-mini` para extraer de manera estructurada una **categoría** técnica y un nivel de **severidad** (Baja, Media, Alta, Crítica).
-- **Servicio de Audio / Speech-to-Text:** Expone un endpoint multi-part (`/transcribir`) que acepta transmisiones de archivos de audio, convirtiéndolos en cadenas de texto legibles.
-- **Motor de Almacenamiento Local:** Gestiona la lectura y escritura asíncrona de archivos JSON en disco para simular operaciones de base de datos relacional.
+Este es el servidor del sistema **Voice to Ticket**, construido con **FastAPI**. Gestiona la autenticación, el procesamiento de texto y audio, la detección de idioma, la traducción, el análisis con IA y el almacenamiento local en archivos JSON.
 
 ---
 
-## Requisitos 
+## Funcionalidad principal
+
+- **Autenticación de usuarios** mediante `/api/usuarios/registro` y `/api/usuarios/login`.
+- **Registro de incidentes por texto** en `/api/incidentes`.
+- **Registro de incidentes por audio** en `/api/incidentes/voz`.
+- **Detección automática de idioma** y traducción al español.
+- **Análisis semántico con IA** para extraer categoría, severidad y resumen.
+- **Persistencia local** en `backend/data/incidents.json`.
+- **Configuración de idioma** en `/api/configuracion`.
+
+---
+
+## Requisitos
+
+- Python 3.12+
+- Microsoft C++ Build Tools (Windows)
+- `ffmpeg` instalado en el sistema
+
+---
+
+## Instalación y configuración
+
+1. Entra al directorio del backend:
+
 ```bash
-Python 3.12.x
-Microsoft C++ Build Tools
-ffmpeg  # requerido para convertir M4A y otros archivos de audio
+cd backend
 ```
-## Instalación y Configuración
 
-1. Ingresa al directorio del backend:
-   ```bash
-   cd backend
-   ```
-2. Configura un entorno virtual:
-    ```bash
-    python -m venv venv
-    # Activar en Linux/macOS:
-    source venv/bin/activate
-    # Activar en Windows (PowerShell):
-    .\venv\Scripts\Activate.ps1
+2. Crea y activa un entorno virtual:
 
-3. Instala dependencias
-    ```bash
-    pip install -r requirements.txt
-    ```
+```bash
+python -m venv venv
+.\venv\Scripts\Activate.ps1
+```
 
-4. Variable de entorno 
-    # Linux / macOS
-    export OPENAI_API_KEY="sk-tu_clave_aqui"
-    
-    # Windows (PowerShell)
-    $env:OPENAI_API_KEY="sk-tu_clave_aqui"   
+3. Instala las dependencias:
 
-## Ejecución 
-    ```bash
-    uvicorn main:app --reload
-    ```
+```bash
+pip install -r requirements.txt
+```
 
-## Endpoints Principales
-    # Autenticación (/api/usuarios)
-        POST /api/usuarios/registro - Registro de nuevos operadores/usuarios.
+4. Configura la variable de entorno de OpenAI:
 
-        POST /api/usuarios/login - Inicio de sesión y obtención de tokens de acceso.
+```powershell
+$env:OPENAI_API_KEY="sk-tu_clave_aqui"
+```
 
-    # Incidentes (/api/incidentes)
-        POST /api/incidentes/ - Registrar nuevo incidente (procesa texto, detecta idioma, traduce y clasifica).
+---
 
-        GET /api/incidentes/ - Listar todos los incidentes estructurados almacenados en el JSON local.
+## Ejecución
 
-        POST /api/incidentes/transcribir - Endpoint especializado para recibir archivos de audio (.mp3, .wav, .m4a, .ogg, .flac) y retornar su transcripción de texto.
+```bash
+uvicorn main:app --reload
+```
 
-## Estructura Detallada del Código
+- La API se expone en `http://localhost:8000`.
+- La documentación de Swagger está en `http://localhost:8000/docs`.
+
+---
+
+## Endpoints principales
+
+### Usuarios
+
+- `POST /api/usuarios/registro` - Registrar nuevo usuario.
+- `POST /api/usuarios/login` - Iniciar sesión y obtener token.
+
+### Incidentes
+
+- `POST /api/incidentes` - Registrar un incidente desde texto.
+- `POST /api/incidentes/voz` - Registrar un incidente desde un archivo de audio.
+- `GET /api/incidentes` - Listar incidentes.
+- `GET /api/incidentes/stats` - Obtener métricas para el dashboard.
+- `GET /api/incidentes/{incidente_id}` - Obtener un incidente por ID.
+- `PUT /api/incidentes/{incidente_id}/estado` - Actualizar el estado de un incidente.
+
+### Configuración
+
+- `GET /api/configuracion` - Obtener la configuración actual.
+- `PUT /api/configuracion` - Actualizar el idioma del sistema.
+
+---
+
+## Estructura del código
 
 ```text
 backend/
+├── core/
+│   ├── auth.py                # Autenticación y dependencias de seguridad
+│   └── config.py              # Carga y guarda de configuración
 ├── data/
-│   ├── incidents.json          # Almacena el histórico de reportes ya estructurados
-│   └── settings.json           # Guarda los estados y configuraciones operativas del sistema
-│   └── users.json           # Guarda los usuarios registrados
-│
+│   ├── incidents.json         # Reportes guardados localmente
+│   ├── settings.json          # Configuración de idioma y voz
+│   └── users.json             # Usuarios registrados
 ├── models/
-│   └── schemas.py              # Modelos Pydantic que validan la estructura estricta del JSON y payloads
-│
+│   └── schemas.py             # Definición de esquemas Pydantic
 ├── routers/
-│   ├── configuracion.py        # Endpoints para modificar parámetros del sistema en caliente
-│   ├── incidentes.py           # Endpoints de creación, listado y transcripción de audios
-│   └── usuarios.py             # Endpoints de registro, login y middleware de autenticación
-│
+│   ├── configuracion.py       # Endpoints para configuración de idioma
+│   ├── incidentes.py          # Endpoints de incidentes y transcripción de audio
+│   └── usuarios.py            # Endpoints de registro y login
 ├── services/
-│   ├── llm.py                  # Integración con la API de OpenAI y esquemas de salida (JSON Mode)
-│   ├── traduccion.py           # Motores locales de detección de lenguaje y traducción al español
-│   └── voz.py                  # Lógica de manipulación de archivos multimedia y Speech-to-Text
-│
-├── config.py                   # Inicialización de variables de entorno y constantes globales
-├── main.py                     # Instanciación de FastAPI, configuración de CORS y enrutamiento maestro
-└── README.md                
+│   ├── llm.py                 # Integración con OpenAI
+│   ├── traduccion.py          # Detección y traducción de idiomas
+│   └── voz.py                 # Lógica de transcripción de audio
+├── main.py                    # Aplicación FastAPI y CORS
+└── requirements.txt           # Dependencias del backend
+```

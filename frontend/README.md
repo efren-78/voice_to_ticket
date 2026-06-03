@@ -1,81 +1,89 @@
 # Voice to Ticket - Frontend
 
-Esta es la interfaz de usuario (UI) para el sistema **Voice to Ticket**. Desarrollada con **React** y potenciada con **Vite** para un entorno de desarrollo ultrarrápido. Permite a los usuarios registrar incidencias y visualizar el estado y la severidad de los tickets generados en tiempo real.
-
-## ¿Qué hace?
-
-- **Portal de Acceso:** Controla el flujo de seguridad mediante pantallas dedicadas a Login y Registro de usuarios, conectándose a los módulos de autenticación del backend.
-- **Captura Híbrida de Incidentes:**
-  - **Modo Texto:** Formulario clásico con campos reactivos para redactar los problemas directamente.
-  - **Modo Archivo:** Input de archivos integrado que acepta la carga manual de notas de voz en formatos estándar como `.wav`, `.mp3` y `.m4a`.
-- **Visualizador en Tiempo Real:** Renderiza las respuestas estructuradas por el backend (Categoría calculada, Severidad con códigos de color e incidentes en formato de tarjetas legibles).
+Esta es la interfaz de usuario del sistema **Voice to Ticket**, construida con **React** y **Vite**. Permite a los operadores iniciar sesión, capturar incidentes por texto o por audio y visualizar el historial y las métricas del sistema.
 
 ---
 
-## Requisitos 
-- **Node.js** (Versión 18 o superior recomendada)
-- **npm** o **yarn**
+## Características
 
-## Instalación y Configuración
+- **Login y Registro** de usuarios.
+- **Captura de incidentes por texto** con formulario reactivo.
+- **Captura de incidentes por voz** mediante subida de audio web.
+- **Dashboard** con historial de incidentes y estadísticas en tiempo real.
+- **Soporte para audio** enviado al backend para transcripción y análisis.
 
-1. Ingresa al directorio del frontend:
-   ```bash
-   cd frontend
-   ```
+---
 
-2. Instala los módulos y dependencias del proyecto:
-    ```bash
-    npm install 
-    ```
+## Requisitos
 
-## Ejecución 
-    ```bash
-    npm run dev
-    ```
+- Node.js 18+
+- npm
 
-## Endpoints Consumidos (Backend)
-El frontend se comunica con el backend (por defecto en el puerto 8000) a través de las siguientes rutas principales:
+---
 
-# Autenticación (/api/usuarios)
-POST /api/usuarios/registro - Registro de nuevos operadores/usuarios.
+## Instalación
 
-POST /api/usuarios/login - Inicio de sesión y obtención de tokens de acceso.
-
-# Incidentes (/api/incidentes)
-POST /api/incidentes/ - Registrar nuevo incidente (procesa texto, detecta idioma, traduce y clasifica).
-
-GET /api/incidentes/ - Listar todos los incidentes estructurados almacenados.
-
-POST /api/incidentes/transcribir - Endpoint especializado para recibir archivos de audio (`.wav`, `.mp3`, `.m4a`, etc.) y retornar su transcripción de texto.
-
-## Estructura Detallada del Código
+```bash
+cd frontend
+npm install
 ```
-Frontend/
-├── public/                     # Recursos estáticos de la aplicación
+
+---
+
+## Ejecución
+
+```bash
+npm run dev
+```
+
+- La aplicación se sirve normalmente en `http://localhost:5173`.
+
+---
+
+## API consumida
+
+El frontend usa la API del backend en `http://localhost:8000/api`.
+
+- `POST /api/usuarios/registro` - Registrar nuevo usuario.
+- `POST /api/usuarios/login` - Iniciar sesión.
+- `POST /api/incidentes` - Crear incidente desde texto.
+- `POST /api/incidentes/voz` - Crear incidente desde audio.
+- `GET /api/incidentes` - Obtener la lista de incidentes.
+- `GET /api/incidentes/stats` - Obtener métricas de dashboard.
+- `GET /api/configuracion` - Obtener configuración actual.
+- `PUT /api/configuracion` - Actualizar configuración de idioma.
+
+---
+
+## Estructura del frontend
+
+```text
+frontend/
+├── public/                     # Archivos estáticos del navegador
 ├── src/
-│   ├── assets/                 # Recursos gráficos e imágenes del sistema
-│   │   ├── hero.png            # Ilustración del panel de acceso
-│   │   ├── react.svg
-│   │   └── vite.svg
-│   │
-│   ├── components/             # Componentes modulares y reutilizables de la UI
-│   │   ├── ConfiguracionForm.jsx # Panel selectivo de idiomas de traducción y dictado
-│   │   ├── Header.jsx          # Barra superior del Dashboard con datos de sesión
-│   │   ├── Login.jsx           # Formulario principal de acceso y validación
-│   │   ├── NuevoReporteForm.jsx # Módulo de captura dual (Caja de texto / Grabadora de micrófono)
-│   │   ├── Sidebar.jsx         # Menú lateral de navegación entre pestañas y vistas
-│   │   └── StatsCard.jsx       # Tarjetas de visualización de estadísticas numéricas
-│   │
-│   ├── pages/                  # Vistas o pantallas principales del sistema
-│   │   └── Dashboard.jsx       # Consola maestra que orquesta el historial y las métricas
-│   │
-│   ├── api.js                  # Orquestador central de peticiones HTTP Fetch hacia el puerto 8000
-│   ├── App.css                 # Estilos específicos del componente raíz
-│   ├── App.jsx                 # Manejador central de estados globales y conmutador de vistas
-│   ├── index.css               # Estilos globales y configuraciones base del diseño
-│   └── main.jsx                # Punto de entrada de React que inicializa la UI en el DOM
-│
-├── package.json                # Dependencias, paquetes y scripts del entorno (Vite, Lucide React, etc.)
-├── vite.config.js              # Configuración del empaquetador y compilador Vite
-└── README.md                   # Documentación técnica del frontend
+│   ├── api.js                  # Cliente HTTP hacia el backend
+│   ├── App.jsx                 # Componente raíz de la aplicación
+│   ├── App.css                 # Estilos específicos de la app
+│   ├── index.css               # Estilos globales
+│   ├── main.jsx                # Punto de entrada de React
+│   ├── assets/                 # Recursos gráficos e imágenes
+│   ├── components/             # Componentes reutilizables
+│   │   ├── ConfiguracionForm.jsx
+│   │   ├── Header.jsx
+│   │   ├── Login.jsx
+│   │   ├── NuevoReporteForm.jsx
+│   │   ├── Sidebar.jsx
+│   │   └── StatsCard.jsx
+│   └── pages/
+│       └── Dashboard.jsx       # Vista principal del panel
+├── package.json                # Dependencias y scripts de npm
+└── vite.config.js              # Configuración del bundler Vite
 ```
+
+---
+
+## Notas
+
+- El frontend usa `localStorage` para guardar el token JWT devuelto por el backend.
+- El endpoint de audio es `/api/incidentes/voz` y espera un campo `audio` tipo `UploadFile`.
+- Si el backend cambia de puerto, actualiza `frontend/src/api.js` en `BASE_URL`.

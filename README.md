@@ -1,127 +1,132 @@
-# Voice to Ticket 
+# Voice to Ticket
 
-El sistema permite a los operadores registrar incidencias de manera híbrida utilizando **texto** o **audio**, detecta automáticamente el idioma del texto, lo normaliza al español y lo procesa con IA, analiza el contexto y genera un ticket estructurado con una categoría técnica específica y un nivel de severidad priorizado.
+Voice to Ticket es un sistema de reporte de incidencias híbrido que permite capturar problemas por **texto** o **audio**, detectar el idioma original, traducirlo al español y generar un ticket estructurado con categoría técnica y nivel de severidad.
 
 ---
 
-## Arquitectura del Ecosistema
+## Estructura del proyecto
 
-El proyecto está dividido en dos capas independientes que se comunican mediante una API REST:
+El proyecto está dividido en dos carpetas principales:
 
-1. **Frontend (React + Vite):** Interfaz de usuario intuitiva con un Dashboard dinámico
-2. **Backend (FastAPI + Python):** Servidor central de alto rendimiento encargado de la autenticación de usuarios, persistencia en archivos JSON locales, traducción/reconocimiento de voz y la orquestación con los modelos lingüísticos avanzados de OpenAI.
+- `backend/` - API REST construida con **FastAPI** y Python.
+- `frontend/` - Interfaz web construida con **React** y **Vite**.
 
 ```text
-[ Cliente React ] ◄--- ( HTTP / JSON ) ---► [ Servidor FastAPI ] ◄---► [ OpenAI API ]
- (Puerto 5173)                                (Puerto 8000)             (GPT-4o-mini)
+voice_to_ticket/
+├── backend/
+│   ├── core/                 # Autenticación, configuración y utilidades compartidas
+│   ├── data/                 # Persistencia local en JSON (incidents.json, users.json, settings.json)
+│   ├── models/               # Esquemas Pydantic para validación de datos
+│   ├── routers/              # Endpoints de la API (incidentes, usuarios, configuración)
+│   ├── services/             # Lógica de negocio independiente (LLM, voz, traducción)
+│   ├── main.py               # Entrada principal de FastAPI y configuración CORS
+│   └── requirements.txt      # Dependencias del backend
+├── frontend/
+│   ├── public/               # Archivos estáticos del navegador
+│   ├── src/                  # Código fuente de React
+│   │   ├── api.js            # Cliente HTTP que consume la API del backend
+│   │   ├── components/       # Componentes reutilizables de la UI
+│   │   └── pages/            # Vistas principales (Dashboard)
+│   ├── package.json          # Dependencias y scripts de npm
+│   └── vite.config.js        # Configuración de Vite
+└── README.md                 # Documentación general
 ```
 
-## Tecnologías Utilizadas
-    - Frontend: React, Vite, Tailwind CSS, Lucide React (iconografía).
-    - Backend: FastAPI, Pydantic, Uvicorn, OpenAI API (GPT-4o-mini), SpeechRecognition, pydub, langdetect, deep-translator.
+---
 
+## Tecnologías principales
 
-## ¿Qué hace?
+- Backend: **FastAPI**, **Pydantic**, **Uvicorn**, **OpenAI API**, **pydub**, **langdetect**, **deep-translator**.
+- Frontend: **React**, **Vite**, **Lucide React**.
+- Comunicaciones: **HTTP/JSON** entre frontend y backend.
 
-- Recibe incidencias en cualquier idioma (Español, Inglés, Alemán, Francés, entre otros)
-- Detecta el idioma automáticamente sin consumir tokens
-- Traduce al español como idioma base del sistema
-- Clasifica la incidencia por **categoría** y **severidad** usando un LLM
-- Genera un resumen estructurado listo para convertirse en ticket
-- Guarda los reportes localmente en un archivo JSON
-- Transcribe un audio a texto
+---
 
 ## Requisitos
-Tener instalado previamente:
-```bash
-Python 3.12.x
-Microsoft C++ Build Tools
-ffmpeg  (necesario para procesar .m4a y otros archivos de audio)
-```
-## Instalación
+
+- Python 3.12+
+- Node.js 18+
+- npm
+- `ffmpeg` instalado en el sistema (para procesar audio en el backend)
+- Variable de entorno `OPENAI_API_KEY` configurada para el backend
+
+---
+
+## Instalación y ejecución
+
+### 1. Clonar el repositorio
 
 ```bash
 git clone https://github.com/efren-78/voice_to_ticket.git
+cd voice_to_ticket
 ```
-## Inicializar el Backend y entorno 
+
+### 2. Configurar y ejecutar el backend
+
 ```bash
 cd backend
 python -m venv venv
 .\venv\Scripts\Activate.ps1
 pip install -r requirements.txt
-
 ```
 
-# Configuración
-La API Key de OpenAI **nunca** se escribe directamente en el código. Guárdala como variable de entorno:
+Configurar la clave de OpenAI:
 
-```bash
-# Linux / macOS
-export OPENAI_API_KEY="sk-..."
-
-# Windows (PowerShell)
+```powershell
 $env:OPENAI_API_KEY="sk-..."
 ```
 
-> Nota: el backend también puede procesar audio localmente y usa `pydub` + `ffmpeg` para convertir formatos como `.m4a`, `.mp3`, `.ogg` o `.flac` a WAV antes de transcribir.
+Iniciar el backend:
 
-# Enciende el servidor de desarrollo con Uvicorn:
 ```bash
 uvicorn main:app --reload
 ```
 
-## Inicializar el Frontend
-Abre una nueva terminal y dirígete al directorio de la interfaz de usuario:
+- API disponible en `http://localhost:8000`
+- Documentación automática en `http://localhost:8000/docs`
+
+### 3. Configurar y ejecutar el frontend
+
+En otra terminal:
+
 ```bash
 cd frontend
-```
-
-# Instala los paquetes y dependencias del ecosistema de Node:
-```bash
 npm install
-```
-# Inicia el servidor
-```bash
 npm run dev
 ```
 
-## Estructura del proyecto
+- Frontend disponible en `http://localhost:5173`
 
-```
-Voice_to_Ticket/
-├── backend/                 # Servidor de la API y lógica de Inteligencia Artificial
-│   ├── data/                # Archivos de persistencia local (incidents.json, users.json)
-│   ├── models/              # Validaciones y contratos de datos con Pydantic
-│   ├── routers/             # Enrutadores modulares (incidentes, usuarios, configuración)
-│   ├── services/            # Módulos de servicios independientes (LLM, Voz, Traducción)
-│   ├── main.py              # Punto de entrada de FastAPI y políticas de CORS
-│   └── requirements.txt     # Dependencias del backend de Python
-│
-├── frontend/                # Interfaz Gráfica de Usuario (UI)
-│   ├── public/              # Recursos estáticos del navegador
-│   ├── src/                 # Código fuente de React
-│   │   ├── components/      # Componentes modulares (Login, Formularios, Sidebar, Cards)
-│   │   ├── pages/           # Vista principal de la aplicación (Dashboard)
-│   │   ├── api.js           # Cliente HTTP Fetch centralizado hacia el puerto 8000
-│   │   └── main.jsx         # Inicializador de la interfaz en el DOM
-│   └── package.json         # Dependencias de npm y scripts de Vite
-│
-└── README.md                # Documentación general
-```
+---
 
-## Decisiones de diseño del MVP
+## Endpoints principales
 
-- El LLM **solo recibe texto en español**, lo que reduce el consumo de tokens en ~60-70% respecto a dejarle también la traducción.
-- La detección y traducción corren con librerías gratuitas, por lo que el costo de la API de OpenAI aplica únicamente al análisis semántico.
-- La persistencia en JSON es intencional para el MVP; la arquitectura objetivo usa AWS RDS.
+El frontend consume la API en `http://localhost:8000/api`.
 
-## Arquitectura objetivo
+- `POST /api/usuarios/registro` - Registrar nuevo usuario.
+- `POST /api/usuarios/login` - Iniciar sesión y obtener token.
+- `POST /api/incidentes` - Registrar incidente a partir de texto.
+- `POST /api/incidentes/voz` - Registrar incidente a partir de audio.
+- `GET /api/incidentes` - Listar incidentes.
+- `GET /api/incidentes/stats` - Obtener métricas para dashboard.
+- `GET /api/incidentes/{id}` - Obtener un incidente por su ID.
+- `PUT /api/incidentes/{id}/estado` - Actualizar estado de incidente.
+- `GET /api/configuracion` - Obtener configuración actual.
+- `PUT /api/configuracion` - Actualizar idioma del sistema.
 
-El MVP es la primera iteración de un sistema más amplio que incluirá:
+---
 
-- **Frontend** React con soporte de voz y texto
-- **Backend** FastAPI / AWS API Gateway
-- **Speech-to-Text** con AWS Transcribe
-- **Confidence Validator** para decidir si un reporte tiene suficiente información antes de crear el ticket
-- **Otobo Ticketing System** como destino final de los reportes
-- **AWS RDS** para persistencia y **AWS SQS** para manejo de cola de incidentes
+## Flujo general
+
+1. El usuario inicia sesión desde el frontend.
+2. Envía un reporte por texto o audio.
+3. El backend detecta el idioma, traduce al español y lo analiza con IA.
+4. El reporte se guarda en JSON local y se muestra en el dashboard.
+
+---
+
+## Notas
+
+- La persistencia actual es local en archivos JSON para facilitar el desarrollo.
+- El flujo de audio requiere `ffmpeg` para convertir y procesar formatos compatibles.
+- La configuración de idioma se guarda en `backend/data/settings.json`.
