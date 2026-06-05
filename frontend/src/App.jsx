@@ -11,11 +11,13 @@ function App() {
 
   // LOGIN
   const handleLogin = () => {
+    // Cambia el estado de autenticación cuando el usuario inicia sesión
     setIsAuthenticated(true)
   }
 
   // LOGOUT
   const handleLogout = () => {
+    // Elimina el token local y regresa al flujo de login
     if (typeof window !== "undefined") {
       window.localStorage.removeItem("token")
     }

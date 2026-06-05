@@ -1,3 +1,14 @@
+'''
+aut.py
+Módulo de autenticación para el sistema de reportes de incidentes.
+No se ejecuta directamente — se importa desde el programa principal.
+Proporciona funciones para:
+- Verificar contraseñas
+- Generar tokens JWT
+- Cargar usuarios desde un archivo JSON
+- Validar tokens y obtener el usuario autenticado
+'''
+
 import os
 from datetime import datetime, timedelta
 from typing import Optional
@@ -30,15 +41,15 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/usuarios/login")
 BASE_DIR = Path(__file__).parent
 USERS_FILE = BASE_DIR / "data" / "users.json"
 
-
+# Verifica una contraseña en texto plano contra un hash guardado.
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     return pwd_context.verify(plain_password, hashed_password)
 
-
+# Genera un hash seguro para una contraseña antes de almacenarla.
 def get_password_hash(password: str) -> str:
     return pwd_context.hash(password)
 
-
+# Crea un token JWT con datos de usuario y fecha de expiración.
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
     to_encode = data.copy()
     if expires_delta:
@@ -49,13 +60,14 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
-
+# Carga la lista de usuarios desde una fuente persistente (archivo JSON)
+# Retorna una lista de diccionarios de usuarios.
 def _load_users() -> list[dict]:
     if USERS_FILE.exists():
         return json.loads(USERS_FILE.read_text(encoding="utf-8"))
     return []
 
-
+# Busca un usuario por correo electrónico y retorna su registro.
 def get_user_by_email(email: str) -> Optional[dict]:
     users = _load_users()
     for u in users:
@@ -63,7 +75,7 @@ def get_user_by_email(email: str) -> Optional[dict]:
             return u
     return None
 
-
+# Valida el token JWT y retorna el usuario autenticado.
 def get_current_user(token: str = Depends(oauth2_scheme)) -> dict:
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,

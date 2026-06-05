@@ -1,10 +1,8 @@
 '''
 main.py
 Punto de entrada de la API VoiceTicket.
-Ejecutar con: uvicorn main:app --reload
-Documentación interactiva en: http://localhost5000/docs
 '''
-
+import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -37,3 +35,7 @@ app.include_router(usuarios.router, prefix="/api")
 def health_check():
     '''Verifica que la API está corriendo.'''
     return {"status": "ok", "app": "VoiceTicket AI"}
+
+# ------ Arranque -----
+if __name__ == "__main__":
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)

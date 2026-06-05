@@ -79,7 +79,7 @@ $env:OPENAI_API_KEY="sk-..."
 Iniciar el backend:
 
 ```bash
-uvicorn main:app --reload
+python main.py
 ```
 
 - API disponible en `http://localhost:8000`

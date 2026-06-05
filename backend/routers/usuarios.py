@@ -10,12 +10,14 @@ router = APIRouter(prefix="/usuarios", tags=["Usuarios"])
 BASE_DIR = Path(__file__).parent.parent
 USERS_FILE = BASE_DIR / "data" / "users.json"
 
+# Carga la lista de usuarios desde el archivo JSON local.
 # --- Persistencia local ---
 def _cargar_usuarios() -> list[dict]:
     if USERS_FILE.exists():
         return json.loads(USERS_FILE.read_text(encoding="utf-8"))
     return []
 
+# Escribe la lista de usuarios actualizada en el archivo JSON local.
 def _guardar_usuarios(usuarios: list[dict]) -> None:
     USERS_FILE.parent.mkdir(parents=True, exist_ok=True)
     USERS_FILE.write_text(
@@ -23,11 +25,11 @@ def _guardar_usuarios(usuarios: list[dict]) -> None:
         encoding="utf-8",
     )
 
-# --- Endpoints ---
+# ----- Endpoints -----
 
+# Registra un nuevo usuario en el sistema si el email no existe.
 @router.post("/registro", response_model=UsuarioResponse, status_code=201)
 def registrar_usuario(body: UsuarioRegisterRequest):
-    '''Registra un nuevo usuario en el sistema si el email no existe.'''
     usuarios = _cargar_usuarios()
     
     # Validar si el correo ya está registrado
@@ -51,9 +53,9 @@ def registrar_usuario(body: UsuarioRegisterRequest):
     
     return nuevo_usuario
 
+# Valida las credenciales de acceso del usuario y retorna un token JWT.
 @router.post("/login")
 def login_usuario(body: LoginRequest):
-    '''Valida las credenciales de acceso del usuario y retorna un token JWT.'''
     usuarios = _cargar_usuarios()
 
     for u in usuarios:

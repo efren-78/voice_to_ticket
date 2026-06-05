@@ -56,7 +56,7 @@ $env:OPENAI_API_KEY="sk-tu_clave_aqui"
 ## Ejecución
 
 ```bash
-uvicorn main:app --reload
+python main.py
 ```
 
 - La API se expone en `http://localhost:8000`.

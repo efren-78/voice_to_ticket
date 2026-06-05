@@ -21,6 +21,7 @@ MODEL = "gpt-4o-mini"
 
 
 def _analisis_local(texto_es: str) -> dict:
+    '''Clasifica localmente el texto en categoría, severidad y resumen.'''
     texto = texto_es.lower()
 
     if any(keyword in texto for keyword in ["seguridad", "robo", "intrusión", "ataque", "amenaza", "acceso no autorizado"]):

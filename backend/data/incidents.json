@@ -163,5 +163,35 @@
     "severidad": "media",
     "estado": "Abierto",
     "resumen": "El sistema no guarda correctamente la configuración del usuario, lo que puede afectar la experiencia de uso."
+  },
+  {
+    "id": "c38d3a7a",
+    "timestamp": "2026-06-05T01:13:33",
+    "fuente": "voz",
+    "texto_original": "El sistema presenta baja latencia. También el sistema presenta poca comprensión.",
+    "voz_duracion": 2.47,
+    "voz_status": "success",
+    "idioma_codigo": "es",
+    "idioma_nombre": "Español",
+    "texto_es": "El sistema presenta baja latencia. También el sistema presenta poca comprensión.",
+    "categoria": "Técnico",
+    "severidad": "media",
+    "estado": "Abierto",
+    "resumen": "El sistema presenta baja latencia y poca comprensión, afectando su rendimiento y usabilidad."
+  },
+  {
+    "id": "1c6192cb",
+    "timestamp": "2026-06-05T01:33:48",
+    "fuente": "teclado",
+    "texto_original": "Mis datos fueron robados",
+    "voz_duracion": null,
+    "voz_status": null,
+    "idioma_codigo": "es",
+    "idioma_nombre": "Español",
+    "texto_es": "Mis datos fueron robados",
+    "categoria": "Seguridad",
+    "severidad": "alta",
+    "estado": "Abierto",
+    "resumen": "Se reporta el robo de datos personales, lo que puede comprometer la seguridad de la información del usuario."
   }
 ]

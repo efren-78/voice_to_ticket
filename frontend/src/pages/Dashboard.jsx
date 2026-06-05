@@ -20,6 +20,7 @@ function Dashboard({ onLogout }) {
   const estadosDisponibles = ["Abierto", "En Progreso", "Resuelto", "Cerrado"];
   const severidadesDisponibles = ["baja", "media", "alta", "critica"];
 
+  // Aplica filtros seleccionados a la lista de tickets.
   const aplicarFiltros = (lista) => {
     return lista.filter((ticket) => {
       const coincideCategoria = filtros.categoria ? ticket.categoria === filtros.categoria : true;
@@ -31,6 +32,7 @@ function Dashboard({ onLogout }) {
 
   const ticketsFiltrados = aplicarFiltros(tickets);
 
+  // Cuenta los incidentes agrupados por el campo solicitado.
   const contarPor = (campo) => {
     return tickets.reduce((acum, ticket) => {
       const valor = ticket[campo] || "Desconocido";
@@ -52,7 +54,7 @@ function Dashboard({ onLogout }) {
     }
   }*/
 
-    // Hook para traer la información de incidents.json al cargar el componente
+    // Carga tickets y estadísticas desde el backend cuando se monta el componente.
     const traerDatosReales = async () => {
       try {
         setCargando(true);
@@ -85,7 +87,7 @@ function Dashboard({ onLogout }) {
       traerDatosReales();
     }, []); 
 
-    // Mapeo de colores dinámicos según la severidad detectada por GPT-4o-mini
+    // Devuelve clases de estilo según la severidad del incidente.
     const getSeverityColor = (severity) => {
       switch(severity?.toLowerCase()) {
         case "critica": return "bg-red-100 text-red-700 font-semibold"
@@ -96,6 +98,7 @@ function Dashboard({ onLogout }) {
       }
     }
 
+    // Devuelve clases de estilo según el estado del incidente.
     const getStatusColor = (estado) => {
       switch(estado?.toLowerCase()) {
         case "resuelto": return "bg-green-100 text-green-700"
@@ -105,6 +108,7 @@ function Dashboard({ onLogout }) {
       }
     }
 
+    // Marca un incidente como resuelto y recarga la lista.
     const marcarComoResuelto = async (ticketId) => {
       try {
         await actualizarEstadoIncidente(ticketId, "Resuelto")

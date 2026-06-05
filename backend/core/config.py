@@ -57,7 +57,6 @@ CONFIG_DEFAULT = {
     "idioma_voz"   : "es-MX",
 }
 
-
 # ----- Persistencia -----
 
 # Lee el JSON existente y retorna el diccionario o retorna lista vacía si no hay archivo.
@@ -72,48 +71,8 @@ def load_config() -> dict:
 
 # Escribe la configuración al archivo JSON.
 def save_config(config: dict) -> None:
+    '''Guarda la configuración de idioma en settings.json.'''
     SETTINGS_FILE.write_text(
         json.dumps(config, ensure_ascii=False, indent=2),
         encoding="utf-8",
     )
-
-
-# ----- Configuración interactiva -----
-
-# Muestra un menú para que el usuario elija su idioma, valida la entrada y guarda la configuración.
-def configurar() -> dict:
-    print("\n" + "═" * 60)
-    print("  CONFIGURACIÓN — Idioma del sistema")
-    print("═" * 60)
-    print("  Selecciona el idioma en que dictarás los incidentes:\n")
-
-    # Construir lista indexada desde el diccionario
-    idiomas = list(LANG_NOMBRES.items())   # [("es", "Español"), ("en", "Inglés"), ...]
-    for i, (codigo, nombre) in enumerate(idiomas, start=1):
-        print(f"  [{i:2}] {nombre}")
-
-    print()
-
-    # Leer y validar elección
-    while True:
-        eleccion = input("  Opción: ").strip()
-        if eleccion.isdigit() and 1 <= int(eleccion) <= len(idiomas):
-            break
-        print(f"  [!] Elige un número entre 1 y {len(idiomas)}.")
-
-    # Extraer los valores correspondientes
-    codigo_iso, nombre = idiomas[int(eleccion) - 1]
-    speech_code        = SPEECH_CODES[codigo_iso]
-
-    # Construir y guardar configuración
-    config = {
-        "idioma_iso"   : codigo_iso,
-        "idioma_nombre": nombre,
-        "idioma_voz"   : speech_code,
-    }
-    save_config(config)
-
-    print(f"\n  Idioma configurado: {nombre} ({speech_code})")
-    print("─" * 60)
-
-    return config

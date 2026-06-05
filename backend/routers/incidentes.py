@@ -5,6 +5,7 @@ Endpoints para registro, consulta y estadísticas de incidentes.
 
 import asyncio
 import json
+import time
 import uuid
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -43,6 +44,7 @@ def _guardar(incidentes: list[dict]) -> None:
         encoding="utf-8",
     )
 
+# ----- Helpers para procesamiento de texto y voz (sincrónicos) -----
 
 async def _cargar_async() -> list[dict]:
     return await asyncio.to_thread(_cargar)
@@ -102,10 +104,9 @@ async def _procesar_y_guardar(texto: str, fuente: str, voz_meta: dict | None = N
 
 
 # ----- Endpoints -----
-
+# Métricas para el Dashboard: total, resueltos, actividad semanal.
 @router.get("/stats", response_model=StatsResponse)
 async def obtener_stats():
-    '''Métricas para el Dashboard: total, resueltos, actividad semanal.'''
     incidentes  = await _cargar_async()
     total       = len(incidentes)
     resueltos   = sum(1 for i in incidentes if i.get("estado") == "Resuelto")
@@ -123,13 +124,12 @@ async def obtener_stats():
         porcentaje_semana = porcentaje,
     )
 
-
+# Lista todos los incidentes. Acepta filtros opcionales por severidad y categoría.
 @router.get("", response_model=list[IncidenteResponse])
 async def listar_incidentes(
     severidad : Optional[str] = Query(None),
     categoria : Optional[str] = Query(None),
 ):
-    '''Lista todos los incidentes. Acepta filtros opcionales por severidad y categoría.'''
     incidentes = await _cargar_async()
 
     if severidad:
@@ -139,20 +139,18 @@ async def listar_incidentes(
 
     return incidentes
 
-
+# Retorna el detalle de un incidente por su ID.
 @router.get("/{incidente_id}", response_model=IncidenteResponse)
 async def obtener_incidente(incidente_id: str):
-    '''Retorna el detalle de un incidente por su ID.'''
     incidentes = await _cargar_async()
     for inc in incidentes:
         if inc["id"] == incidente_id:
             return inc
     raise HTTPException(status_code=404, detail="Incidente no encontrado.")
 
-
+# Actualiza el estado de un incidente por su ID.
 @router.put("/{incidente_id}/estado", response_model=IncidenteResponse)
 async def actualizar_estado_incidente(incidente_id: str, body: IncidenteStatusUpdateRequest, current_user: dict = Depends(get_current_user)):
-    '''Actualiza el estado de un incidente por su ID.'''
     estados_validos = {"Abierto", "En Progreso", "Resuelto", "Cerrado"}
 
     if body.estado not in estados_validos:
@@ -170,26 +168,24 @@ async def actualizar_estado_incidente(incidente_id: str, body: IncidenteStatusUp
 
     raise HTTPException(status_code=404, detail="Incidente no encontrado.")
 
-
+# Registra un incidente a partir de texto escrito.
 @router.post("", response_model=IncidenteResponse, status_code=201)
 async def registrar_por_texto(body: IncidenteTextRequest):
-    '''Registra un incidente a partir de texto escrito.'''
     if not body.texto.strip():
         raise HTTPException(status_code=422, detail="El texto no puede estar vacío.")
     return await _procesar_y_guardar(body.texto.strip(), fuente="teclado")
 
-
+# Registra un incidente a partir de un archivo de audio.
+# El frontend envía el audio grabado desde el navegador (webm/mp4/wav).
 @router.post("/voz", response_model=IncidenteResponse, status_code=201)
 async def registrar_por_voz(audio: UploadFile = File(...)):
-    '''
-    Registra un incidente a partir de un archivo de audio.
-    El frontend envía el audio grabado desde el navegador (webm/mp4/wav).
-    '''
     settings    = load_config()
     idioma_voz  = settings.get("idioma_voz", "es-MX")
     audio_bytes = await audio.read()
 
+    start = time.time()
     resultado = await asyncio.to_thread(transcribir_audio, audio_bytes, idioma_voz, audio.filename)
+    duracion = round(time.time() - start, 2)
 
     if resultado["status"] != "success" or not resultado["texto"]:
         raise HTTPException(
@@ -197,5 +193,8 @@ async def registrar_por_voz(audio: UploadFile = File(...)):
             detail=f"No se pudo transcribir el audio: {resultado.get('error', 'audio no reconocido')}",
         )
 
-    voz_meta = {"status": resultado["status"], "duracion": None}
+    voz_meta = {
+        "status": resultado["status"],
+        "duracion": duracion,
+    }
     return await _procesar_y_guardar(resultado["texto"], fuente="voz", voz_meta=voz_meta)
